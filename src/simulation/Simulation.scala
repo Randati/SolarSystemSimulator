@@ -34,7 +34,6 @@ class Simulation {
 			
 			val F = forceSum * G
 			val a = F / obj.mass
-			println(F, a)
 			obj.velocity += a * time
 		}
 		
