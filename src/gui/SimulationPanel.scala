@@ -8,24 +8,11 @@ import simulation.Simulation
 class SimulationPanel(val simulation: Simulation) extends Panel {
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
-	private var zoom: Double = 152098232.0 * 4 * 11
+	private var zoom: Double = 9.361466974610922E+08 * 3
 	private var buffer = new BufferedImage(600, 600, BufferedImage.TYPE_INT_RGB)
 	ignoreRepaint = true
 
-	private var t = 0.0
 	
-	private val timer = new javax.swing.Timer(1000 / 120, new java.awt.event.ActionListener() {
-		override def actionPerformed(e: java.awt.event.ActionEvent) = {
-			
-			val dt: Double = 60 * 60 * 24 * 10
-			simulation.simulate(t, dt)
-//			simulation.simulate(dt)
-			t += dt
-			repaint()
-		}
-	})
-	timer.start()
-
 	override def paint(screenG: Graphics2D) {
 		if (buffer.getWidth != size.width || buffer.getHeight != size.height) {
 			buffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB)
@@ -46,11 +33,11 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 		val objs = simulation.getObjects
 
 		for (obj <- objs) {
-			g.fillOval(
-				(obj.position.x / zoom - obj.radius + offsetX).toInt,
-				(obj.position.y / zoom - obj.radius + offsetY).toInt,
-				(obj.radius * 2).toInt,
-				(obj.radius * 2).toInt)
+			val radius = math.max(obj.radius / 50000000, 3.0)
+			val x = (obj.position.x - obj.radius) / zoom + offsetX
+			val y = (obj.position.y - obj.radius) / zoom + offsetY
+			
+			g.fillOval(x.toInt, y.toInt, radius.toInt, radius.toInt)
 		}
 		
 		

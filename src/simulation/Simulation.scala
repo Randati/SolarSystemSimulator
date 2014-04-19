@@ -5,6 +5,8 @@ import util.Vec
 
 
 class Simulation {
+	var simulatedTime: Double = 0.0
+	
 	private var objects = new ListBuffer[Object]()
 	private val G = 6.67259e-11 // (N*m^2) / (kg^2)
 	
@@ -18,7 +20,7 @@ class Simulation {
 	
 	def getObjects() = objects.toVector
 	
-	def acceleration(obj: Object, state: State, time: Double): Vec = {
+	private def acceleration(obj: Object, state: State, time: Double): Vec = {
 		var forceSum = new Vec
 			
 		for (obj2 <- state.objects) {
@@ -39,7 +41,9 @@ class Simulation {
 	}
 	
 		
-	def evaluate(state: State, t: Double, dt: Double, deriv: StateDeriv): (State, StateDeriv) = {
+	private def evaluate(state: State, t: Double, dt: Double, deriv: StateDeriv): (State, StateDeriv) = {
+		simulatedTime = t
+		
 		val newState = Vector.tabulate(state.objects.length)(i => state.objects(i).copy())
 		val newDeriv = Vector.tabulate(state.objects.length)(_ => new ObjectDeriv)
 		
@@ -85,6 +89,8 @@ class Simulation {
 	
 	
 	def simulate(time: Double) = {
+		simulatedTime += time
+		
 		for (obj <- objects) {
 			obj.velocity += acceleration(obj, State(getObjects), time) * time
 		}
