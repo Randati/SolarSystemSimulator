@@ -1,5 +1,5 @@
 #
-# Solar system as of 2014-01-01 00:00 CT
+# Solar system as of 2014-01-01 00:00:00.0000 CT
 # Source: http://ssd.jpl.nasa.gov/?horizons
 #
 # ID-Name        Mass           Radius          X                      Y                      Z                        VX                     VY                     VZ

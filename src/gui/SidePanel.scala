@@ -6,7 +6,7 @@ import simulation.Simulation
 class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertical) {
 	val simulationTime = new Label("00:00:00")
 	
-	this.minimumSize.width = 300
+	preferredSize = new Dimension(200, 600)
 	
 	contents += new Button("Foo")
 	contents += new Button("Bar")

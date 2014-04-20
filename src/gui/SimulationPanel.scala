@@ -8,7 +8,7 @@ import simulation.Simulation
 class SimulationPanel(val simulation: Simulation) extends Panel {
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
-	private var zoom: Double = 9.361466974610922E+08 * 3
+	private var zoom: Double = 9.361466974610922E+08 * 0.005
 	private var buffer = new BufferedImage(600, 600, BufferedImage.TYPE_INT_RGB)
 	ignoreRepaint = true
 
@@ -33,11 +33,13 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 		val objs = simulation.getObjects
 
 		for (obj <- objs) {
-			val radius = math.max(obj.radius / 50000000, 3.0)
-			val x = (obj.position.x - obj.radius) / zoom + offsetX
-			val y = (obj.position.y - obj.radius) / zoom + offsetY
+			val radius = math.max(obj.radius / 400000, 1.0)
+			val x = (obj.position.x - objs(3).position.x) / zoom + offsetX - radius
+			val y = (obj.position.z - objs(3).position.z) / zoom + offsetY - radius
+			val col = if (obj.position.y < 0) 100 else 255
 			
-			g.fillOval(x.toInt, y.toInt, radius.toInt, radius.toInt)
+			g.setColor(new Color(col, col, col))
+			g.fillOval(x.toInt, y.toInt, (radius * 2).toInt, (radius * 2).toInt)
 		}
 		
 		

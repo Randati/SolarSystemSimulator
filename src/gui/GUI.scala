@@ -14,9 +14,6 @@ object GUI extends SimpleSwingApplication {
 	private val simulationPanel = new SimulationPanel(simulation)
 	private val sidePanel = new SidePanel(simulation)
 	
-	private var t = 0.0
-	
-	
 	def top = new MainFrame {
 		title = "Solar System Simulator"
 		minimumSize = new Dimension(400, 300)
@@ -35,10 +32,8 @@ object GUI extends SimpleSwingApplication {
 	private val timer = new javax.swing.Timer(1000 / 60, new java.awt.event.ActionListener() {
 		override def actionPerformed(e: java.awt.event.ActionEvent) = {
 			
-			val dt: Double = 60 * 60 * 24 * 0.5
-			simulation.simulate(t, dt)
-//			simulation.simulate(dt)
-			t += dt
+			val dt: Double = 60 * 60 * 24 * 0.1
+			simulation.simulate(dt)
 			simulationPanel.repaint()
 			sidePanel.update()
 		}
