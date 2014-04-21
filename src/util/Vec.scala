@@ -33,6 +33,17 @@ case class Vec(
 			this.z / that)
 	}
 	
+	def length: Double = {
+		Math.sqrt(
+			Math.pow(this.x, 2) +
+			Math.pow(this.y, 2) +
+			Math.pow(this.z, 2))
+	}
+	
+	def normalize: Vec = {
+		this / length
+	}
+	
 	def distancePow2(that: Vec): Double = {
 		Math.pow(that.x - this.x, 2) +
 		Math.pow(that.y - this.y, 2) +

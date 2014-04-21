@@ -20,7 +20,7 @@ class Simulation {
 	def getObjects() = state.objects
 	
 	def simulate(dt: Double) = {
-		val (newT, newState) = RK4Integrator.nextState(time, state, dt)
+		val (newT, newState) = RK4Integrator.nextState(time, state, dt, 10)
 		time = newT
 		state = newState
 	}
@@ -49,8 +49,7 @@ class Simulation {
 				val b = obj2.position
 				
 				val force = (obj.mass * obj2.mass) / (a distancePow2 b)
-				val dist = a distance b
-				val unitVec = (b - a) / dist
+				val unitVec = (b - a).normalize
 				forceSum + unitVec * force
 			}
 		}

@@ -32,7 +32,7 @@ object GUI extends SimpleSwingApplication {
 	private val timer = new javax.swing.Timer(1000 / 60, new java.awt.event.ActionListener() {
 		override def actionPerformed(e: java.awt.event.ActionEvent) = {
 			
-			val dt: Double = 60 * 60 * 24 * 0.1
+			val dt: Double = 60 * 60 * 24 * 0.5 * 1
 			simulation.simulate(dt)
 			simulationPanel.repaint()
 			sidePanel.update()
