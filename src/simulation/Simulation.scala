@@ -3,6 +3,7 @@ package simulation
 import scala.collection.mutable.ListBuffer
 import util.Vec
 
+// TODO: Test lagrangian points
 
 class Simulation {
 	private val G = 6.67259e-11 // (N*m^2) / (kg^2)

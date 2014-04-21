@@ -29,23 +29,25 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 	listenTo(mouse.wheel)
 	
 	reactions += {
-    	case e: MousePressed =>
-    		dragLast = Some(e.point)
-    		
-    	case e: MouseDragged =>
-    		for (last <- dragLast) {
-	    		rotationMatrix =
-	    			Matrix.rotationX(-(e.point.y - last.y) / 100.0) *
-	    			Matrix.rotationY( (e.point.x - last.x) / 100.0) *
-	    			rotationMatrix
-	    			
-	    		dragLast = Some(e.point)
-    		}
-    		
-    	case e: MouseWheelMoved =>
-    		zoom = max(zoom + e.rotation * 0.1, 0.0001)
+		case e: MousePressed =>
+			dragLast = Some(e.point)
+			
+		case e: MouseDragged =>
+			for (last <- dragLast) {
+				rotationMatrix =
+					Matrix.rotationX(-(e.point.y - last.y) / 100.0) *
+					Matrix.rotationY( (e.point.x - last.x) / 100.0) *
+					rotationMatrix
+					
+				dragLast = Some(e.point)
+			}
+			
+		case e: MouseWheelMoved =>
+			// TODO: Make zooming work better in different distances
+			zoom = max(zoom + e.rotation * 0.1, 0.0001)
 	}
 	
+	// TODO: Move colors to the settings file
 	def planetColor(name: String) = name match {
 		case "10-Sun"      => java.awt.Color.yellow
 		case "199-Mercury" => new Color(200, 200, 200)
@@ -86,6 +88,8 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 		val rZoom = 3.5 / zoom
 		val posZoom = 1e9 * zoom
 		val center = Vec()
+		
+		// TODO: Add velocity and acceleration vectors
 		
 		// Transform objects and trails to drawable circles
 		// and sort them from farthest to closest
