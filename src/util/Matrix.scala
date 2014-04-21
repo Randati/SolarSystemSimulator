@@ -1,4 +1,5 @@
 package util
+import scala.math.{sin, cos}
 
 case class Matrix(data: Vector[Vector[Double]]) {
 	val width = data(0).size
@@ -51,6 +52,22 @@ case class Matrix(data: Vector[Vector[Double]]) {
 			this(0, 1) * that.x + this(1, 1) * that.y + this(2, 1) * that.z,
 			this(0, 2) * that.x + this(1, 2) * that.y + this(2, 2) * that.z)
 	}
-	
+}
 
-}	
+
+object Matrix {
+	def rotationX(a: Double) = Matrix(Vector(
+		Vector(1.0,    0.0,     0.0),
+		Vector(0.0, cos(a), -sin(a)),
+		Vector(0.0, sin(a),  cos(a))))
+	
+	def rotationY(a: Double) = Matrix(Vector(
+		Vector( cos(a), 0.0, sin(a)),
+		Vector(    0.0, 1.0,    0.0),
+		Vector(-sin(a), 0.0, cos(a))))
+		
+	def rotationZ(a: Double) = Matrix(Vector(
+		Vector(cos(a), -sin(a), 0.0),
+		Vector(sin(a),  cos(a), 0.0),
+		Vector(   0.0,     0.0, 1.0)))
+}

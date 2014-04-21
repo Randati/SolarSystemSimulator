@@ -33,96 +33,88 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
     		dragLast = Some(e.point)
     		
     	case e: MouseDragged =>
-    		if (dragLast.isDefined) {
-    			val last = dragLast.get
-    			val delta = (e.point.x - last.x, e.point.y - last.y)
-    			dragLast = Some(e.point)
-    			
-    			rotationMatrix *= rotMatZ(-delta._1 / 100.0)
-    			rotationMatrix *= rotMatX(-delta._2 / 100.0)
+    		for (last <- dragLast) {
+	    		rotationMatrix =
+	    			Matrix.rotationX(-(e.point.y - last.y) / 100.0) *
+	    			Matrix.rotationY( (e.point.x - last.x) / 100.0) *
+	    			rotationMatrix
+	    			
+	    		dragLast = Some(e.point)
     		}
     		
     	case e: MouseWheelMoved =>
     		zoom = max(zoom + e.rotation * 0.1, 0.0001)
 	}
 	
-	def rotMatX(a: Double) = Matrix(Vector(
-		Vector(1.0,    0.0,     0.0),
-		Vector(0.0, cos(a), -sin(a)),
-		Vector(0.0, sin(a),  cos(a))))
+	def planetColor(name: String) = name match {
+		case "10-Sun"      => java.awt.Color.yellow
+		case "199-Mercury" => new Color(200, 200, 200)
+		case "299-Venus"   => new Color(255, 168, 18)
+		case "399-Earth"   => new Color(94, 255, 77)
+		case "499-Mars"    => new Color(255, 81, 13)
+		case "599-Jupiter" => new Color(194, 209, 180)
+		case "699-Saturn"  => new Color(229, 222, 138)
+		case "799-Uranus"  => new Color(119, 217, 229)
+		case "899-Neptune" => new Color(91, 130, 229)
+		case "999-Pluto"   => new Color(186, 96, 69)
+		case "301-Moon"    => new Color(255, 255, 255)
+		case _             => new Color(255, 0, 255)
+	}
 	
-	def rotMatY(a: Double) = Matrix(Vector(
-		Vector( cos(a), 0.0, sin(a)),
-		Vector(    0.0, 1.0,    0.0),
-		Vector(-sin(a), 0.0, cos(a))))
-		
-	def rotMatZ(a: Double) = Matrix(Vector(
-		Vector(cos(a), -sin(a), 0.0),
-		Vector(sin(a),  cos(a), 0.0),
-		Vector(   0.0,     0.0, 1.0)))
-	
+	case class Drawable(pos: Vec, radius: Double, color: java.awt.Color)
 
 	
 	override def paint(screenG: Graphics2D) {
-		if (buffer.getWidth != size.width || buffer.getHeight != size.height) {
+		if (buffer.getWidth != size.width || buffer.getHeight != size.height)
 			buffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB)
-		}
-		
 		
 		val g = buffer.getGraphics.asInstanceOf[Graphics2D]
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 		
+		
+		// Draw background
 		g.setColor(new Color(0, 0, 0))
 		g.fillRect(0, 0, size.width, size.height)
 
-		g.setColor(new Color(255, 255, 255))
 
+		
 		offsetX = size.width / 2
 		offsetY = size.height / 2
 		
 		val objs = simulation.getObjects
 		val rMin = objs.minBy(_.radius).radius
+		val rZoom = 3.5 / zoom
+		val posZoom = 1e9 * zoom
 		val center = Vec()
 		
-		for (p <- trails.getData) {
-			drawPoint(p._1, 1, p._2)
-		}
-		
-		for (obj <- objs) {
-			val col = obj.name match {
-				case "10-Sun"      => java.awt.Color.yellow
-				case "199-Mercury" => new Color(200, 200, 200)
-				case "299-Venus"   => new Color(255, 168, 18)
-				case "399-Earth"   => new Color(94, 255, 77)
-				case "499-Mars"    => new Color(255, 81, 13)
-				case "599-Jupiter" => new Color(194, 209, 180)
-				case "699-Saturn"  => new Color(229, 222, 138)
-				case "799-Uranus"  => new Color(119, 217, 229)
-				case "899-Neptune" => new Color(91, 130, 229)
-				case "999-Pluto"   => new Color(186, 96, 69)
-				case "301-Moon"    => new Color(255, 255, 255)
-				case _             => new Color(255, 0, 255)
+		// Transform objects and trails to drawable circles
+		// and sort them from farthest to closest
+		val drawObjects =
+			(objs.map { obj =>
+				val drawPos    = rotationMatrix * obj.position
+				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
+				val color      = planetColor(obj.name)
+				
+				trails.push((obj.position, color))
+				Drawable(drawPos, drawRadius, color)
 			}
+			++
+			trails.getData.map { p =>
+				Drawable(rotationMatrix * p._1, 0.5, p._2)
+			})
+			.sortBy(_.pos.z)
+		
+		
+		// Draw objects and trails
+		for (d <- drawObjects) {
+			val x = (d.pos.x - center.x) / posZoom + offsetX - d.radius
+			val y = (d.pos.y - center.y) / posZoom + offsetY - d.radius
 			
-			trails.push((obj.position, col))
-			drawPoint(obj.position, obj.radius, col)
+			g.setColor(d.color)
+			g.fillOval(x.round.toInt, y.round.toInt, (d.radius * 2).round.toInt, (d.radius * 2).round.toInt)
 		}
 		
-		
-		def drawPoint(pos: Vec, radius: Double, color: Color) = {
-			val drawPos = rotationMatrix * pos
-			
-			val rZoom = 3.5 / zoom
-			val posZoom = 1e9 * zoom
-			val drawRadius = math.max((math.log(radius) - math.log(rMin)) * rZoom, 0.5) 
-			val x = (drawPos.x - center.x) / posZoom + offsetX - drawRadius
-			val y = (drawPos.y - center.y) / posZoom + offsetY - drawRadius
-			
-			g.setColor(color)
-			g.fillOval(x.round.toInt, y.round.toInt, (drawRadius * 2).round.toInt, (drawRadius * 2).round.toInt)
-		}
-		
-		
+
 		screenG.drawImage(buffer, 0, 0, null)
 	}
 }
