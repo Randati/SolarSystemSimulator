@@ -11,13 +11,13 @@ import util.Vec
 import util.RingBuffer
 
 class SimulationPanel(val simulation: Simulation) extends Panel {
+	val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
+	
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
 	private var zoom: Double = 1
 	private var buffer = new BufferedImage(600, 600, BufferedImage.TYPE_INT_RGB)
 	private var dragLast: Option[java.awt.Point] = None
-	private var angle = 0.0
-	private val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
 	private var rotationMatrix = Matrix(Vector.tabulate(3, 3) { (y, x) =>
 		if (x == y) 1.0 else 0.0
 	})
@@ -89,6 +89,7 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 		val posZoom = 1e9 * zoom
 		val center = Vec()
 		
+		
 		// TODO: Add velocity and acceleration vectors
 		
 		// Transform objects and trails to drawable circles
@@ -99,7 +100,6 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
 				val color      = planetColor(obj.name)
 				
-				trails.push((obj.position, color))
 				Drawable(drawPos, drawRadius, color)
 			}
 			++
