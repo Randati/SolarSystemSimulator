@@ -18,9 +18,10 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 	private var zoom: Double = 1
 	private var buffer = new BufferedImage(600, 600, BufferedImage.TYPE_INT_RGB)
 	private var dragLast: Option[java.awt.Point] = None
-	private var rotationMatrix = Matrix(Vector.tabulate(3, 3) { (y, x) =>
-		if (x == y) 1.0 else 0.0
-	})
+	private var angleX = 0.0
+	private var angleY = Pi / 2
+	private var rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
+	private var freeCamera = false
 	
 	ignoreRepaint = true
 	
@@ -34,17 +35,27 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 			
 		case e: MouseDragged =>
 			for (last <- dragLast) {
-				rotationMatrix =
-					Matrix.rotationX(-(e.point.y - last.y) / 100.0) *
-					Matrix.rotationY( (e.point.x - last.x) / 100.0) *
-					rotationMatrix
+				val deltaX = e.point.x - last.x
+				val deltaY = e.point.y - last.y
+				
+				if (freeCamera) {
+					rotationMatrix =
+						Matrix.rotationX(-deltaY / 100.0) *
+						Matrix.rotationY( deltaX / 100.0) *
+						rotationMatrix
+				}
+				else {
+					angleX -= deltaX / 100.0
+					angleY = max(min(angleY - deltaY / 100.0, Pi), 0.0)
+					
+					rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
+				}
 					
 				dragLast = Some(e.point)
 			}
 			
 		case e: MouseWheelMoved =>
-			// TODO: Make zooming work better in different distances
-			zoom = max(zoom + e.rotation * 0.1, 0.0001)
+			zoom = max(zoom + e.rotation * 0.06 * zoom, 0.0001)
 	}
 	
 	// TODO: Move colors to the settings file
@@ -69,6 +80,7 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 	override def paint(screenG: Graphics2D) {
 		if (buffer.getWidth != size.width || buffer.getHeight != size.height)
 			buffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB)
+		
 		
 		val g = buffer.getGraphics.asInstanceOf[Graphics2D]
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)

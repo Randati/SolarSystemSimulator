@@ -41,7 +41,7 @@ object GUI extends SimpleSwingApplication {
 				for (obj <- simulation.getObjects)
 					simulationPanel.trails.push((obj.position, new Color(255, 255, 255)))
 					
-//				Thread.sleep(1000 / 60)
+				Thread.sleep(1000 / 60)
 			}
 		}
 	}).start()
