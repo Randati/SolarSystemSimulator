@@ -5,48 +5,55 @@ import javax.swing.border._
 import simulation.Simulation
 
 class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertical) {
-	preferredSize = new Dimension(200, 600)
+	preferredSize = new Dimension(200, 0)
 	
-	contents += new BoxPanel(Orientation.Horizontal) {
-		contents += new Button("Pause")
-		contents += new Button("Reset")
+	class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
+	class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
+	
+	
+	val pauseButton = new Button("Pause")
+	val resetButton = new Button("Reset")
+	
+	val yearsLabel   = new RLabel
+	val daysLabel    = new RLabel
+	val hoursLabel   = new RLabel
+	val minutesLabel = new RLabel
+	
+	val speedSlider    = new Slider()
+	val accuracySlider = new Slider()
+	val cameraCheckbox = new CheckBox("Free camera")
+	
+	
+	
+	contents += new FlowPanel() {
+		contents += pauseButton
+		contents += resetButton
 	}
 	
-	
-	contents += new Label("Simulated time")
-	
+	contents += new FlowPanel { contents += new Label("Simulated time") }
 	contents += new GridPanel(4, 2) {
 		hGap = 10
-		
-		val t = simulation.simulatedTime.toLong
-		
-		class RLabel(s: String) extends Label(s) { horizontalAlignment = Alignment.Right }
-		class LLabel(s: String) extends Label(s) { horizontalAlignment = Alignment.Left }
-		
-		contents += new RLabel((t / 60 / 60 / 24 / 365).toString)
+		contents += yearsLabel
 		contents += new LLabel("years")
-		
-		contents += new RLabel(((t / 60 / 60 / 24) % 365).toString)
+		contents += daysLabel
 		contents += new LLabel("days")
-		
-		contents += new RLabel(((t / 60 / 60) % 24).toString)
+		contents += hoursLabel
 		contents += new LLabel("hours")
-		
-		contents += new RLabel(((t / 60) % 60).toString)
+		contents += minutesLabel
 		contents += new LLabel("minutes")
 	}
 	
-	contents += new BoxPanel(Orientation.Horizontal) {
+	contents += Swing.VStrut(20)
+	
+	contents += new GridPanel(2, 2) {
 		contents += new Label("Speed")
-		contents += new Slider()
-	}
-	
-	contents += new BoxPanel(Orientation.Horizontal) {
+		contents += speedSlider
 		contents += new Label("Accuracy")
-		contents += new Slider()
+		contents += accuracySlider
 	}
 	
-	contents += new CheckBox("Free camera")
+	contents += new FlowPanel { contents += cameraCheckbox }
+	
 	
 	contents += Swing.VStrut(20)
 	
@@ -83,7 +90,14 @@ class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertica
 		contents += new Separator(Orientation.Vertical)
 	}
 	
+	
+	
 	def update() = {
-		
+		val t = simulation.simulatedTime.toLong
+		yearsLabel.text   = (t / 60 / 60 / 24 / 365).toString
+		daysLabel.text    = (t / 60 / 60 / 24 % 365).toString
+		hoursLabel.text   = (t / 60 / 60 % 24).toString
+		minutesLabel.text = (t / 60 % 60).toString
 	}
+	
 }
