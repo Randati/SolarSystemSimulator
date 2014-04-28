@@ -12,6 +12,7 @@ import util.RingBuffer
 
 class SimulationPanel(val simulation: Simulation) extends Panel {
 	val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
+	var freeCamera = false
 	
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
@@ -21,7 +22,6 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 	private var angleX = 0.0
 	private var angleY = Pi / 2
 	private var rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
-	private var freeCamera = false
 	
 	ignoreRepaint = true
 	
@@ -35,27 +35,27 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 			
 		case e: MouseDragged =>
 			for (last <- dragLast) {
-				val deltaX = e.point.x - last.x
-				val deltaY = e.point.y - last.y
-				
-				if (freeCamera) {
-					rotationMatrix =
-						Matrix.rotationX(-deltaY / 100.0) *
-						Matrix.rotationY( deltaX / 100.0) *
-						rotationMatrix
-				}
-				else {
-					angleX -= deltaX / 100.0
-					angleY = max(min(angleY - deltaY / 100.0, Pi), 0.0)
-					
-					rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
-				}
-					
+				updateCamera(e.point.x - last.x, e.point.y - last.y)
 				dragLast = Some(e.point)
 			}
 			
 		case e: MouseWheelMoved =>
 			zoom = max(zoom + e.rotation * 0.06 * zoom, 0.0001)
+	}
+	
+	def updateCamera(deltaX: Int = 0, deltaY: Int = 0) = {
+		if (freeCamera) {
+			rotationMatrix =
+				Matrix.rotationX(-deltaY / 100.0) *
+				Matrix.rotationY( deltaX / 100.0) *
+				rotationMatrix
+		}
+		else {
+			angleX -= deltaX / 100.0
+			angleY = max(min(angleY - deltaY / 100.0, Pi), 0.0)
+			
+			rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
+		}
 	}
 	
 	// TODO: Move colors to the settings file

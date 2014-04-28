@@ -13,6 +13,7 @@ object SolarSystemReader {
 				simulation.addObject(_)
 			}
 		}
+		simulation.saveState()
 	}
 	
 	def readLine(line: String): Option[Object] = {

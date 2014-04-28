@@ -22,4 +22,9 @@ class RingBuffer[T : ClassTag](size: Int) {
 		else
 			data.take(pointer)
 	}
+	
+	def clear() = {
+		pointer = 0
+		full = false
+	}
 }

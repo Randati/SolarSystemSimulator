@@ -1,10 +1,12 @@
 package gui
 
 import swing._
+import swing.event._
 import javax.swing.border._
 import simulation.Simulation
 
-class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertical) {
+class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
+		extends BoxPanel(Orientation.Vertical) {
 	preferredSize = new Dimension(200, 0)
 	
 	class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
@@ -19,8 +21,8 @@ class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertica
 	val hoursLabel   = new RLabel
 	val minutesLabel = new RLabel
 	
-	val speedSlider    = new Slider()
-	val accuracySlider = new Slider()
+	val speedSlider    = new Slider { min = 0; max = 1000 }
+	val accuracySlider = new Slider { min = 1; max = 1000 }
 	val cameraCheckbox = new CheckBox("Free camera")
 	
 	
@@ -90,6 +92,32 @@ class SidePanel(val simulation: Simulation) extends BoxPanel(Orientation.Vertica
 		contents += new Separator(Orientation.Vertical)
 	}
 	
+	
+	
+	listenTo(
+		pauseButton, resetButton,
+		speedSlider, accuracySlider, cameraCheckbox)
+		
+	
+	reactions += {
+		case ButtonClicked(`pauseButton`) =>
+			GUI.simulationPaused = !GUI.simulationPaused
+			pauseButton.text = if (GUI.simulationPaused) "Run" else "Pause"
+		
+		case ButtonClicked(`resetButton`) =>
+			simulation.loadSave()
+			simPanel.trails.clear()
+			
+		case ValueChanged(`speedSlider`) =>
+			GUI.simSecPerSec = speedSlider.value.toDouble / 1000 * 60 * 60 * 24 * 365 * 100
+		
+		case ValueChanged(`accuracySlider`) =>
+			GUI.ticksPerSec = accuracySlider.value.toDouble / 1000 * 10000
+		
+		case ButtonClicked(`cameraCheckbox`) =>
+			simPanel.freeCamera = cameraCheckbox.selected
+			simPanel.updateCamera()
+	}
 	
 	
 	def update() = {

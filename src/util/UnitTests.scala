@@ -100,6 +100,22 @@ class UnitTests {
 		
 		ring.push(7)
 		assertEquals(Array(7, 5, 6).deep, ring.getData.deep)
+		
+		
+		ring.clear()
+		assertEquals(Array().deep, ring.getData.deep)
+		
+		ring.push(1)
+		assertEquals(Array(1).deep, ring.getData.deep)
+		
+		ring.push(2)
+		assertEquals(Array(1, 2).deep, ring.getData.deep)
+		
+		ring.push(3)
+		assertEquals(Array(1, 2, 3).deep, ring.getData.deep)
+		
+		ring.push(4)
+		assertEquals(Array(4, 2, 3).deep, ring.getData.deep)
 	}
 
 }

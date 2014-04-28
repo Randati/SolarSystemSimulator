@@ -12,10 +12,12 @@ import util.SolarSystemReader
 
 object GUI extends SimpleSwingApplication {
 	val simulation = new Simulation
-	var dt = 60 * 60 * 24 * 0.5
+	var simulationPaused = false
+	var simSecPerSec = 60 * 60 * 24 * 0.5
+	var ticksPerSec = 30.0
 	
 	private val simulationPanel = new SimulationPanel(simulation)
-	private val sidePanel = new SidePanel(simulation)
+	private val sidePanel = new SidePanel(simulation, simulationPanel)
 	
 	def top = new MainFrame {
 		title = "Solar System Simulator"
@@ -35,13 +37,24 @@ object GUI extends SimpleSwingApplication {
 		def run() = {
 			SolarSystemReader.loadFile("solar-system.ss", simulation)
 			
+			var tickTime = 0.0
 			while (true) {
-				simulation.simulate(dt)
+				val dt = simSecPerSec / ticksPerSec
+				val simTimeInSec = ticksPerSec * tickTime
+				val sleepTimeInSec = 1.0 - simTimeInSec
+				val sleepThisTick = Math.max(sleepTimeInSec / ticksPerSec, 0.0)
 				
-				for (obj <- simulation.getObjects)
-					simulationPanel.trails.push((obj.position, new Color(255, 255, 255)))
+				
+				if (!simulationPaused) {
+					val startTime = System.nanoTime()
+					simulation.simulate(dt)
 					
-				Thread.sleep(1000 / 60)
+					for (obj <- simulation.getObjects)
+						simulationPanel.trails.push((obj.position, new Color(255, 255, 255)))
+					
+					tickTime = (System.nanoTime() - startTime) / 1e9
+				}
+				Thread.sleep((sleepThisTick * 1000).toLong)
 			}
 		}
 	}).start()
