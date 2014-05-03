@@ -70,7 +70,7 @@ object GUI extends SimpleSwingApplication {
 				val dt = simSecPerSec / ticksPerSec
 				val simTimeInSec = ticksPerSec * tickTime
 				val sleepTimeInSec = 1.0 - simTimeInSec
-				val sleepThisTick = Math.max(sleepTimeInSec / ticksPerSec, 0.0)
+				val sleepThisTick = Math.min(Math.max(sleepTimeInSec / ticksPerSec, 0.0), 0.1)
 				
 				
 				if (!simulationPaused && !collision) {

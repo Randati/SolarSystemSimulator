@@ -9,7 +9,7 @@ import simulation.Simulation
 
 class SidePanel(val simPanel: SimulationPanel)
 		extends BoxPanel(Orientation.Vertical) {
-	preferredSize = new Dimension(200, 0)
+	preferredSize = new Dimension(250, 0)
 	
 	class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
 	class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
@@ -129,10 +129,14 @@ class SidePanel(val simPanel: SimulationPanel)
 			GUI.resetSimulation()
 			
 		case ValueChanged(`speedSlider`) =>
-			GUI.simSecPerSec = speedSlider.value.toDouble / 1000 * 60 * 60 * 24 * 365 * 100
+			val v01 = speedSlider.value.toDouble / 1000
+			val v = v01 * v01 * v01 * v01 * v01 * v01
+			GUI.simSecPerSec = v * 60 * 60 * 24 * 365 * 100
 		
 		case ValueChanged(`accuracySlider`) =>
-			GUI.ticksPerSec = accuracySlider.value.toDouble / 1000 * 10000
+			val v01 = accuracySlider.value.toDouble / 1000
+			val v = v01 * v01 * v01
+			GUI.ticksPerSec = v * 10000
 		
 		case ButtonClicked(`cameraCheckbox`) =>
 			simPanel.freeCamera = cameraCheckbox.selected
