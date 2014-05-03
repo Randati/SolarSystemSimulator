@@ -11,26 +11,31 @@ class SidePanel(val simPanel: SimulationPanel)
 		extends BoxPanel(Orientation.Vertical) {
 	preferredSize = new Dimension(250, 0)
 	
-	class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
-	class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
+	private class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
+	private class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
 	
-	val loadButton  = new Button("Load")
-	val clearButton = new Button("Clear")
+	private val loadButton  = new Button("Load")
+	private val clearButton = new Button("Clear")
 	
-	val pauseButton = new Button("Pause")
-	val resetButton = new Button("Reset")
+	private val pauseButton = new Button("Pause")
+	private val resetButton = new Button("Reset")
 	
-	val yearsLabel   = new RLabel
-	val daysLabel    = new RLabel
-	val hoursLabel   = new RLabel
-	val minutesLabel = new RLabel
+	private val yearsLabel   = new RLabel
+	private val daysLabel    = new RLabel
+	private val hoursLabel   = new RLabel
+	private val minutesLabel = new RLabel
 	
-	val speedSlider    = new Slider { min = 0; max = 1000 }
-	val accuracySlider = new Slider { min = 1; max = 1000 }
-	val cameraCheckbox = new CheckBox("Free camera")
+	private val speedSlider    = new Slider { min = 0; max = 1000 }
+	private val accuracySlider = new Slider { min = 1; max = 1000 }
+	private val cameraCheckbox = new CheckBox("Free camera")
 	
+	private val objectList = new ComboBox(Array[String]())
 	
-	val objectList = new ComboBox(Array[String]())
+	private val massField   = new TextField
+	private val radiusField = new TextField
+	private val posFields   = Vector(new TextField, new TextField, new TextField)
+	private val velFields   = Vector(new TextField, new TextField, new TextField)
+	
 	
 	
 	contents += new FlowPanel() {
@@ -78,26 +83,22 @@ class SidePanel(val simPanel: SimulationPanel)
 		
 		contents += new BoxPanel(Orientation.Horizontal) {
 			contents += new Label("Mass")
-			contents += new TextField()
+			contents += massField
 		}
 		
 		contents += new BoxPanel(Orientation.Horizontal) {
 			contents += new Label("Radius")
-			contents += new TextField()
+			contents += radiusField
 		}
 		
 		contents += new Label("Position")
 		contents += new BoxPanel(Orientation.Horizontal) {
-			contents += new TextField()
-			contents += new TextField()
-			contents += new TextField()
+			posFields.foreach { contents += _ }
 		}
 		
 		contents += new Label("Velocity")
 		contents += new BoxPanel(Orientation.Horizontal) {
-			contents += new TextField()
-			contents += new TextField()
-			contents += new TextField()
+			velFields.foreach { contents += _ }
 		}
 		
 		contents += new Separator(Orientation.Vertical)
@@ -108,7 +109,8 @@ class SidePanel(val simPanel: SimulationPanel)
 	listenTo(
 		loadButton, clearButton,
 		pauseButton, resetButton,
-		speedSlider, accuracySlider, cameraCheckbox)
+		speedSlider, accuracySlider, cameraCheckbox,
+		objectList.selection)
 		
 	
 	reactions += {
@@ -141,15 +143,37 @@ class SidePanel(val simPanel: SimulationPanel)
 		case ButtonClicked(`cameraCheckbox`) =>
 			simPanel.freeCamera = cameraCheckbox.selected
 			simPanel.updateCamera()
+		
+		case SelectionChanged(`objectList`) =>
+			GUI.selectedObject = objectList.selection.index
 	}
 	
 	
 	def update() = {
+		// Simulation time
 		val t = GUI.simulation.simulatedTime.toLong
 		yearsLabel.text   = (t / 60 / 60 / 24 / 365).toString
 		daysLabel.text    = (t / 60 / 60 / 24 % 365).toString
 		hoursLabel.text   = (t / 60 / 60 % 24).toString
 		minutesLabel.text = (t / 60 % 60).toString
+		
+		
+		// Selected object
+		val objects = GUI.simulation.getObjects
+		val selected = GUI.selectedObject
+		
+		if (objects.length > selected) {
+			val obj = objects(selected)
+			
+			massField.text    = obj.mass.toString
+			radiusField.text  = (obj.radius/ 1000).toString
+			posFields(0).text = (obj.position.x / 1000).toString
+			posFields(1).text = (obj.position.y / 1000).toString
+			posFields(2).text = (obj.position.z / 1000).toString
+			velFields(0).text = (obj.velocity.x / 1000).toString
+			velFields(1).text = (obj.velocity.y / 1000).toString
+			velFields(2).text = (obj.velocity.z / 1000).toString
+		}
 	}
 	
 	def updateObjectList() = {

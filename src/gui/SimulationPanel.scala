@@ -88,30 +88,55 @@ class SimulationPanel extends Panel {
 		
 		// TODO: Add velocity and acceleration vectors
 		
+		def screenCoordinates(pos: Vec, radius: Double): Vec = Vec(
+			(pos.x - center.x) / posZoom + offsetX - radius,
+			(pos.y - center.y) / posZoom + offsetY - radius,
+			pos.z
+		)
+		
+		val selectedObject = if (GUI.selectedObject < objs.length) objs(GUI.selectedObject) else null
+		var selectedDrawable: Option[Drawable] = None
+		
 		// Transform objects and trails to drawable circles
 		// and sort them from farthest to closest
 		val drawObjects =
 			(objs.map { obj =>
-				val drawPos    = rotationMatrix * obj.position
-				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
+				// TODO: Better radius handling
 				val color      = new Color(obj.color)
+				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
+				val drawPos    = screenCoordinates(rotationMatrix * obj.position, drawRadius)
 				
-				Drawable(drawPos, drawRadius, color)
+				val drawable = Drawable(drawPos, drawRadius, color)
+				
+				if (obj == selectedObject)
+					selectedDrawable = Some(drawable)
+				
+				drawable
 			}
 			++
 			trails.getData.map { p =>
-				Drawable(rotationMatrix * p._1, 0.5, p._2)
+				val r = 0.5
+				val pos = screenCoordinates(rotationMatrix * p._1, r)
+				Drawable(pos, r, p._2)
 			})
 			.sortBy(_.pos.z)
 		
 		
 		// Draw objects and trails
 		for (d <- drawObjects) {
-			val x = (d.pos.x - center.x) / posZoom + offsetX - d.radius
-			val y = (d.pos.y - center.y) / posZoom + offsetY - d.radius
-			
 			g.setColor(d.color)
-			g.fillOval(x.round.toInt, y.round.toInt, (d.radius * 2).round.toInt, (d.radius * 2).round.toInt)
+			g.fillOval(d.pos.x.toInt, d.pos.y.toInt, (d.radius * 2).toInt, (d.radius * 2).toInt)
+		}
+		
+		
+		// Draw selection circle
+		selectedDrawable.foreach { d =>
+			val e = 5
+			val r = d.radius + e
+			val x = d.pos.x - e
+			val y = d.pos.y - e
+			g.setColor(new Color(255, 255, 255))
+			g.drawOval(x.toInt, y.toInt, (r * 2).toInt, (r * 2).toInt)
 		}
 		
 

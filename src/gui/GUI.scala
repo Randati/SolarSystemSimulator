@@ -14,6 +14,7 @@ object GUI extends SimpleSwingApplication {
 	var simulationPaused = false
 	var simSecPerSec = 60 * 60 * 24 * 0.5
 	var ticksPerSec = 30.0
+	var selectedObject = 0
 	
 	private var currentSimulation = new Simulation(Vector())
 	private var loadedObjects = Vector[Object]()
