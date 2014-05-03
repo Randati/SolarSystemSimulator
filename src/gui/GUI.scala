@@ -25,6 +25,22 @@ object GUI extends SimpleSwingApplication {
 	
 	def simulation = currentSimulation
 	
+	def loadFile(filename: String) = {
+		SolarSystemReader.loadFile(filename) match {
+			case Some(objs) =>
+				loadedObjects ++= objs
+				resetSimulation()
+				
+			case None =>
+				Dialog.showMessage(sidePanel, "Could not load file '" + filename + "'!", "File loading error", Dialog.Message.Error)
+		}
+	}
+	
+	def clearObjects() = {
+		loadedObjects = Vector()
+		resetSimulation()
+	}
+	
 	def resetSimulation() = {
 		currentSimulation = new Simulation(loadedObjects)
 		simulationPanel.trails.clear()
@@ -49,10 +65,6 @@ object GUI extends SimpleSwingApplication {
 	// Start simulation thread
 	new Thread(new Runnable {
 		def run() = {
-			// TODO fix file loading
-			loadedObjects = SolarSystemReader.loadFile("solar-system.ss").get
-			resetSimulation()
-			
 			var tickTime = 0.0
 			while (true) {
 				val dt = simSecPerSec / ticksPerSec

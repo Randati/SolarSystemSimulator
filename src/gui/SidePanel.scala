@@ -14,6 +14,8 @@ class SidePanel(val simPanel: SimulationPanel)
 	class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
 	class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
 	
+	val loadButton  = new Button("Load")
+	val clearButton = new Button("Clear")
 	
 	val pauseButton = new Button("Pause")
 	val resetButton = new Button("Reset")
@@ -30,6 +32,11 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	val objectList = new ComboBox(Array[String]())
 	
+	
+	contents += new FlowPanel() {
+		contents += loadButton
+		contents += clearButton
+	}
 	
 	contents += new FlowPanel() {
 		contents += pauseButton
@@ -99,11 +106,21 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	
 	listenTo(
+		loadButton, clearButton,
 		pauseButton, resetButton,
 		speedSlider, accuracySlider, cameraCheckbox)
 		
 	
 	reactions += {
+		case ButtonClicked(`loadButton`) =>
+			val chooser = new FileChooser(new java.io.File("./"))
+			if (chooser.showOpenDialog(this) == FileChooser.Result.Approve) {
+				GUI.loadFile(chooser.selectedFile.getAbsolutePath)
+			}
+		
+		case ButtonClicked(`clearButton`) =>
+			GUI.clearObjects()
+				
 		case ButtonClicked(`pauseButton`) =>
 			GUI.simulationPaused = !GUI.simulationPaused
 			pauseButton.text = if (GUI.simulationPaused) "Run" else "Pause"
