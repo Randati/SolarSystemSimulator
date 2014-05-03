@@ -13,10 +13,24 @@ class Simulation(objects: Vector[Object]) {
 	
 	def getObjects() = state.objects
 	
-	def simulate(dt: Double) = {
+	def simulate(dt: Double): Boolean = {
 		val (newT, newState) = RK4Integrator.nextState(time, state, dt)
 		time = newT
 		state = newState
+		
+		for (o1 <- state.objects; o2 <- state.objects if o1 != o2) {
+			if (ballBallCollision(o1.position, o1.radius, o2.position, o2.radius))
+				return true
+		}
+		
+		false
+	}
+	
+	private def ballBallCollision(aPos: Vec, aR: Double, bPos: Vec, bR: Double): Boolean = {
+		// Same as:
+		// (aPos distance bPos) < (aR + bR)
+		val r2 = aR + bR
+		(aPos distancePow2 bPos) < r2 * r2
 	}
 }
 
@@ -54,5 +68,4 @@ private case class SystemState(objects: Vector[Object]) extends State[SystemStat
 		val a = F / obj.mass
 		a
 	}
-
 }

@@ -17,6 +17,7 @@ object GUI extends SimpleSwingApplication {
 	
 	private var currentSimulation = new Simulation(Vector())
 	private var loadedObjects = Vector[Object]()
+	private var collision = false
 	
 	private val simulationPanel = new SimulationPanel
 	private val sidePanel = new SidePanel(simulationPanel)
@@ -59,9 +60,12 @@ object GUI extends SimpleSwingApplication {
 				val sleepThisTick = Math.max(sleepTimeInSec / ticksPerSec, 0.0)
 				
 				
-				if (!simulationPaused) {
+				if (!simulationPaused && !collision) {
 					val startTime = System.nanoTime()
-					simulation.simulate(dt)
+					val collided = simulation.simulate(dt)
+					
+					if (collided)
+						collision = true
 					
 					for (obj <- simulation.getObjects)
 						simulationPanel.trails.push((obj.position, new Color(255, 255, 255)))

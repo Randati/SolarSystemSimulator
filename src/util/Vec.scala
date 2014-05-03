@@ -35,9 +35,9 @@ case class Vec(
 	
 	def length: Double = {
 		Math.sqrt(
-			Math.pow(this.x, 2) +
-			Math.pow(this.y, 2) +
-			Math.pow(this.z, 2))
+			this.x * this.x +
+			this.y * this.y +
+			this.z * this.z)
 	}
 	
 	def normalize: Vec = {
@@ -45,12 +45,14 @@ case class Vec(
 	}
 	
 	def distancePow2(that: Vec): Double = {
-		Math.pow(that.x - this.x, 2) +
-		Math.pow(that.y - this.y, 2) +
-		Math.pow(that.z - this.z, 2)
+		val dx = that.x - this.x
+		val dy = that.y - this.y
+		val dz = that.z - this.z
+		
+		dx * dx + dy * dy + dz * dz
 	}
 	
 	def distance(that: Vec): Double = {
-		Math.sqrt(distancePow2(that))
+		Math.sqrt(this distancePow2 that)
 	}
 }
