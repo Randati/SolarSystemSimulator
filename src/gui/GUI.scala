@@ -49,7 +49,8 @@ object GUI extends SimpleSwingApplication {
 	// Start simulation thread
 	new Thread(new Runnable {
 		def run() = {
-			loadedObjects = SolarSystemReader.loadFile("solar-system.ss")
+			// TODO fix file loading
+			loadedObjects = SolarSystemReader.loadFile("solar-system.ss").get
 			resetSimulation()
 			
 			var tickTime = 0.0

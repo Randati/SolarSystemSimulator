@@ -4,9 +4,13 @@ import simulation.Object
 import scala.io.Source
 
 object SolarSystemReader {
-	def loadFile(filename: String): Vector[Object] = {
-		val file = Source.fromFile(filename)
-		file.getLines.flatMap(readLine(_)).toVector
+	def loadFile(filename: String): Option[Vector[Object]] = {
+		try {
+			val file = Source.fromFile(filename)
+			Some(file.getLines.flatMap(readLine(_)).toVector)
+		} catch {
+			case _: Throwable => None
+		}
 	}
 	
 	def readLine(line: String): Option[Object] = {
@@ -19,8 +23,8 @@ object SolarSystemReader {
 			val name     = parts(0)
 			val mass     = parts(1).toDouble
 			val radius   = parts(2).toDouble * 1000
-			val position = Vec(parts(3).toDouble * 1000, parts(4).toDouble * 1000, parts(5).toDouble * 1000)
-			val velocity = Vec(parts(6).toDouble * 1000, parts(7).toDouble * 1000, parts(8).toDouble * 1000)
+			val position = Vec(parts(3).toDouble, parts(4).toDouble, parts(5).toDouble) * 1000
+			val velocity = Vec(parts(6).toDouble, parts(7).toDouble, parts(8).toDouble) * 1000
 			val color    = if (parts.length == 10) Integer.parseInt(parts(9), 16) else 0xFF00FF
 		
 			Some(Object(
