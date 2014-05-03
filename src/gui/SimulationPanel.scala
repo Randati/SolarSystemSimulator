@@ -10,7 +10,7 @@ import util.Matrix
 import util.Vec
 import util.RingBuffer
 
-class SimulationPanel(val simulation: Simulation) extends Panel {
+class SimulationPanel extends Panel {
 	val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
 	var freeCamera = false
 	
@@ -95,8 +95,8 @@ class SimulationPanel(val simulation: Simulation) extends Panel {
 		offsetX = size.width / 2
 		offsetY = size.height / 2
 		
-		val objs = simulation.getObjects
-		val rMin = objs.minBy(_.radius).radius
+		val objs = GUI.simulation.getObjects
+		val rMin = if(objs.nonEmpty) objs.minBy(_.radius).radius else 0
 		val rZoom = 3.5 / zoom
 		val posZoom = 1e9 * zoom
 		val center = Vec()

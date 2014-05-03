@@ -3,9 +3,11 @@ package gui
 import swing._
 import swing.event._
 import javax.swing.border._
+import javax.swing.JComboBox
+import javax.swing.ComboBoxModel
 import simulation.Simulation
 
-class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
+class SidePanel(val simPanel: SimulationPanel)
 		extends BoxPanel(Orientation.Vertical) {
 	preferredSize = new Dimension(200, 0)
 	
@@ -25,6 +27,8 @@ class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
 	val accuracySlider = new Slider { min = 1; max = 1000 }
 	val cameraCheckbox = new CheckBox("Free camera")
 	
+	
+	val objectList = new ComboBox(Array[String]())
 	
 	
 	contents += new FlowPanel() {
@@ -63,7 +67,7 @@ class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
 	contents += new BoxPanel(Orientation.Vertical) {
 		border = new TitledBorder("Object")
 		
-		contents += new ComboBox(Array("Foo", "Bar"))
+		contents += objectList
 		
 		contents += new BoxPanel(Orientation.Horizontal) {
 			contents += new Label("Mass")
@@ -105,8 +109,7 @@ class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
 			pauseButton.text = if (GUI.simulationPaused) "Run" else "Pause"
 		
 		case ButtonClicked(`resetButton`) =>
-			simulation.loadSave()
-			simPanel.trails.clear()
+			GUI.resetSimulation()
 			
 		case ValueChanged(`speedSlider`) =>
 			GUI.simSecPerSec = speedSlider.value.toDouble / 1000 * 60 * 60 * 24 * 365 * 100
@@ -121,11 +124,18 @@ class SidePanel(val simulation: Simulation, val simPanel: SimulationPanel)
 	
 	
 	def update() = {
-		val t = simulation.simulatedTime.toLong
+		val t = GUI.simulation.simulatedTime.toLong
 		yearsLabel.text   = (t / 60 / 60 / 24 / 365).toString
 		daysLabel.text    = (t / 60 / 60 / 24 % 365).toString
 		hoursLabel.text   = (t / 60 / 60 % 24).toString
 		minutesLabel.text = (t / 60 % 60).toString
+	}
+	
+	def updateObjectList() = {
+		val objects = GUI.simulation.getObjects
+		val combobox = objectList.peer.asInstanceOf[JComboBox[String]]
+		val listModel = ComboBox.newConstantModel(objects.map(_.name)).asInstanceOf[ComboBoxModel[String]]
+		combobox.setModel(listModel)
 	}
 	
 }

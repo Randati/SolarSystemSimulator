@@ -5,40 +5,15 @@ import util.Vec
 
 // TODO: Test lagrangian points
 
-class Simulation {
+class Simulation(objects: Vector[Object]) {
 	private var time  = 0.0
-	private var state = SystemState(Vector())
-	private var objectsToAdd = List[Object]()
-	private var savedState = SystemState(Vector())
-	private var loadState = false
-	
+	private var state = SystemState(objects)
+
 	def simulatedTime = time
-	
-	def addObject(obj: Object) = {
-		objectsToAdd ::= obj 
-	}
-	
-	def saveState() = {
-		savedState = SystemState(state.objects ++ objectsToAdd)
-	}
-	
-	def loadSave() = {
-		state = savedState
-		loadState = true
-	}
 	
 	def getObjects() = state.objects
 	
 	def simulate(dt: Double) = {
-		state = SystemState(state.objects ++ objectsToAdd)
-		objectsToAdd = Nil
-		
-		if (loadState) {
-			state = savedState
-			loadState = false
-			time = 0.0
-		}
-		
 		val (newT, newState) = RK4Integrator.nextState(time, state, dt)
 		time = newT
 		state = newState

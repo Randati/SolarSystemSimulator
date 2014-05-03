@@ -11,14 +11,27 @@ import util.SolarSystemReader
 
 
 object GUI extends SimpleSwingApplication {
-	val simulation = new Simulation
 	var simulationPaused = false
 	var simSecPerSec = 60 * 60 * 24 * 0.5
 	var ticksPerSec = 30.0
 	
-	private val simulationPanel = new SimulationPanel(simulation)
-	private val sidePanel = new SidePanel(simulation, simulationPanel)
+	private var currentSimulation = new Simulation(Vector())
+	private var loadedObjects = Vector[Object]()
 	
+	private val simulationPanel = new SimulationPanel
+	private val sidePanel = new SidePanel(simulationPanel)
+	
+	
+	def simulation = currentSimulation
+	
+	def resetSimulation() = {
+		currentSimulation = new Simulation(loadedObjects)
+		simulationPanel.trails.clear()
+		sidePanel.updateObjectList()
+	}
+	
+	
+	// Build GUI
 	def top = new MainFrame {
 		title = "Solar System Simulator"
 		minimumSize = new Dimension(400, 300)
@@ -35,7 +48,8 @@ object GUI extends SimpleSwingApplication {
 	// Start simulation thread
 	new Thread(new Runnable {
 		def run() = {
-			SolarSystemReader.loadFile("solar-system.ss", simulation)
+			loadedObjects = SolarSystemReader.loadFile("solar-system.ss")
+			resetSimulation()
 			
 			var tickTime = 0.0
 			while (true) {

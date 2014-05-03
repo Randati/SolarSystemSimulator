@@ -1,19 +1,12 @@
 package util
 
-import simulation.Simulation
 import simulation.Object
 import scala.io.Source
 
 object SolarSystemReader {
-	def loadFile(filename: String, simulation: Simulation): Unit = {
+	def loadFile(filename: String): Vector[Object] = {
 		val file = Source.fromFile(filename)
-
-		for (line <- file.getLines) {
-			readLine(line).foreach {
-				simulation.addObject(_)
-			}
-		}
-		simulation.saveState()
+		file.getLines.flatMap(readLine(_)).toVector
 	}
 	
 	def readLine(line: String): Option[Object] = {
