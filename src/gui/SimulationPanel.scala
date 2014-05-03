@@ -58,24 +58,8 @@ class SimulationPanel extends Panel {
 		}
 	}
 	
-	// TODO: Move colors to the settings file
-	def planetColor(name: String) = name match {
-		case "10-Sun"      => java.awt.Color.yellow
-		case "199-Mercury" => new Color(200, 200, 200)
-		case "299-Venus"   => new Color(255, 168, 18)
-		case "399-Earth"   => new Color(94, 255, 77)
-		case "499-Mars"    => new Color(255, 81, 13)
-		case "599-Jupiter" => new Color(194, 209, 180)
-		case "699-Saturn"  => new Color(229, 222, 138)
-		case "799-Uranus"  => new Color(119, 217, 229)
-		case "899-Neptune" => new Color(91, 130, 229)
-		case "999-Pluto"   => new Color(186, 96, 69)
-		case "301-Moon"    => new Color(255, 255, 255)
-		case _             => new Color(255, 0, 255)
-	}
 	
 	case class Drawable(pos: Vec, radius: Double, color: java.awt.Color)
-
 	
 	override def paint(screenG: Graphics2D) {
 		if (buffer.getWidth != size.width || buffer.getHeight != size.height)
@@ -110,7 +94,7 @@ class SimulationPanel extends Panel {
 			(objs.map { obj =>
 				val drawPos    = rotationMatrix * obj.position
 				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
-				val color      = planetColor(obj.name)
+				val color      = new Color(obj.color)
 				
 				Drawable(drawPos, drawRadius, color)
 			}

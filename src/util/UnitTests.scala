@@ -13,8 +13,8 @@ class UnitTests {
 		assertEquals(None, SolarSystemReader.readLine("foo"))
 		assertEquals(None, SolarSystemReader.readLine("foo bar baz  foo bar baz  foo bar baz"))
 		
-		val correctLine = " Foo \t  1E+20 1000  1.0 2.0 3.0  4.0 5.0 6.0 "
-		val expected = Object("Foo", 1E+20, 1000*1000.0, Vec(1.0*1000.0, 2.0*1000.0, 3.0*1000.0), Vec(4.0*1000.0, 5.0*1000.0, 6.0*1000.0))
+		val correctLine = " Foo \t  1E+20 1000  1.0 2.0 3.0  4.0 5.0 6.0  AAACFF"
+		val expected = Object("Foo", 1E+20, 1000*1000.0, Vec(1.0*1000.0, 2.0*1000.0, 3.0*1000.0), Vec(4.0*1000.0, 5.0*1000.0, 6.0*1000.0), 0xAAACFF)
 		
 		assertEquals(Some(expected), SolarSystemReader.readLine(correctLine))
 		assertEquals(Some(expected), SolarSystemReader.readLine(correctLine + " # Comment"))
