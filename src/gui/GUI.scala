@@ -96,7 +96,9 @@ object GUI extends SimpleSwingApplication {
 	new javax.swing.Timer(1000 / 60, new java.awt.event.ActionListener() {
 		override def actionPerformed(e: java.awt.event.ActionEvent) = {
 			simulationPanel.repaint()
-			sidePanel.update()
+			
+			if (!simulationPaused)
+				sidePanel.update()
 		}
 	}).start()
 	

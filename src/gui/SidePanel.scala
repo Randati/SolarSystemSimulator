@@ -13,6 +13,7 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	private class RLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Right }
 	private class LLabel(s: String = "") extends Label(s) { horizontalAlignment = Alignment.Left }
+	private class TField extends TextField { minimumSize = new Dimension(1000, preferredSize.height + 4); editable = false }
 	
 	private val loadButton  = new Button("Load")
 	private val clearButton = new Button("Clear")
@@ -31,10 +32,10 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	private val objectList = new ComboBox(Array[String]())
 	
-	private val massField   = new TextField
-	private val radiusField = new TextField
-	private val posFields   = Vector(new TextField, new TextField, new TextField)
-	private val velFields   = Vector(new TextField, new TextField, new TextField)
+	private val massField   = new TField
+	private val radiusField = new TField
+	private val posFields   = Vector(new TField, new TField, new TField)
+	private val velFields   = Vector(new TField, new TField, new TField)
 	
 	
 	
@@ -69,41 +70,38 @@ class SidePanel(val simPanel: SimulationPanel)
 		contents += new Label("Accuracy")
 		contents += accuracySlider
 	}
-	
+
 	contents += new FlowPanel { contents += cameraCheckbox }
 	
 	
 	contents += Swing.VStrut(20)
 	
-	
 	contents += new BoxPanel(Orientation.Vertical) {
 		border = new TitledBorder("Object")
 		
 		contents += objectList
+		contents += Swing.VStrut(20)
 		
-		contents += new BoxPanel(Orientation.Horizontal) {
-			contents += new Label("Mass")
-			contents += massField
-		}
+		contents += new FlowPanel { contents += new Label("Mass, kg") }
+		contents += massField
+		contents += Swing.VStrut(10)
 		
-		contents += new BoxPanel(Orientation.Horizontal) {
-			contents += new Label("Radius")
-			contents += radiusField
-		}
+		contents += new FlowPanel { contents += new Label("Radius, km") }
+		contents += radiusField
+		contents += Swing.VStrut(20)
 		
-		contents += new Label("Position")
-		contents += new BoxPanel(Orientation.Horizontal) {
-			posFields.foreach { contents += _ }
-		}
+		contents += new FlowPanel { contents += new Label("Position, km") }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("X"); contents += posFields(0) }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("Y"); contents += posFields(1) }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("Z"); contents += posFields(2) }
+		contents += Swing.VStrut(20)
 		
-		contents += new Label("Velocity")
-		contents += new BoxPanel(Orientation.Horizontal) {
-			velFields.foreach { contents += _ }
-		}
-		
-		contents += new Separator(Orientation.Vertical)
+		contents += new FlowPanel { contents += new Label("Velocity, km/s") }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("X"); contents += velFields(0) }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("Y"); contents += velFields(1) }
+		contents += new BoxPanel(Orientation.Horizontal) { contents += new Label("Z"); contents += velFields(2) }
 	}
-	
+	contents += Swing.VStrut(10000)
 	
 	
 	listenTo(
@@ -146,6 +144,7 @@ class SidePanel(val simPanel: SimulationPanel)
 		
 		case SelectionChanged(`objectList`) =>
 			GUI.selectedObject = objectList.selection.index
+			update()
 	}
 	
 	
