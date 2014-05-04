@@ -14,6 +14,8 @@ class SimulationPanel extends Panel {
 	val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
 	var freeCamera = false
 	var centerObject = -1
+	var objectSize = 1.0
+	var objectScale = 1.0
 	
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
@@ -41,7 +43,7 @@ class SimulationPanel extends Panel {
 			}
 			
 		case e: MouseWheelMoved =>
-			zoom = max(zoom + e.rotation * 0.06 * zoom, 0.0001)
+			zoom = max(zoom + e.rotation * 0.06 * zoom, 0.0000000001)
 	}
 	
 	def updateCamera(deltaX: Int = 0, deltaY: Int = 0) = {
@@ -82,7 +84,7 @@ class SimulationPanel extends Panel {
 		
 		val objs = GUI.simulation.getObjects
 		val rMin = if(objs.nonEmpty) objs.minBy(_.radius).radius else 0
-		val rZoom = 3.5 / zoom
+		val rMax = if(objs.nonEmpty) objs.maxBy(_.radius).radius else 1
 		val posZoom = 1e9 * zoom
 		
 		val center =
@@ -108,12 +110,13 @@ class SimulationPanel extends Panel {
 		// and sort them from farthest to closest
 		val drawObjects =
 			(objs.map { obj =>
-				// TODO: Better radius handling
-				val color      = new Color(obj.color)
-				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
+				val r01        = (obj.radius - rMin) / (rMax - rMin)
+				val r          = math.pow(r01, objectScale) * objectSize * (rMax - rMin) + rMin
+				val drawRadius = math.max(r / posZoom, 0.5)
+				
 				val drawPos    = screenCoordinates(obj.position, drawRadius)
 				
-				val drawable = Drawable(drawPos, drawRadius, color)
+				val drawable = Drawable(drawPos, drawRadius, new Color(obj.color))
 				
 				if (obj == selectedObject)
 					selectedDrawable = Some(drawable)

@@ -28,11 +28,14 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	private val speedSlider    = new Slider { min = 0; max = 1000 }
 	private val accuracySlider = new Slider { min = 1; max = 1000 }
-	private val cameraCheckbox = new CheckBox("Free camera")
-	private val centerList = new ComboBox(Array[String]("None"))
+	
+	
+	private val cameraCheckbox = new CheckBox("Free camera rotation")
+	private val centerList     = new ComboBox(Array[String]("None"))
+	private val sizeSlider     = new Slider { min = 1; max = 100 }
+	private val scaleSlider    = new Slider { min = 1; max = 100 }
 	
 	private val objectList = new ComboBox(Array[String]())
-	
 	private val massField   = new TField
 	private val radiusField = new TField
 	private val posFields   = Vector(new TField, new TField, new TField)
@@ -40,48 +43,78 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	
 	
-	contents += new FlowPanel() {
-		contents += loadButton
-		contents += clearButton
-	}
-	
-	contents += new FlowPanel() {
-		contents += pauseButton
-		contents += resetButton
-	}
-	
-	contents += new FlowPanel { contents += new Label("Simulated time") }
-	contents += new GridPanel(4, 2) {
-		hGap = 10
-		contents += yearsLabel
-		contents += new LLabel("years")
-		contents += daysLabel
-		contents += new LLabel("days")
-		contents += hoursLabel
-		contents += new LLabel("hours")
-		contents += minutesLabel
-		contents += new LLabel("minutes")
-	}
-	
-	contents += Swing.VStrut(20)
-	
-	contents += new GridPanel(2, 2) {
-		contents += new Label("Speed")
-		contents += speedSlider
-		contents += new Label("Accuracy")
-		contents += accuracySlider
-	}
-
-	contents += new FlowPanel { contents += cameraCheckbox }
-	
-	contents += new FlowPanel { contents += new Label("Camera center") }
-	contents += centerList
-	
-	
-	contents += Swing.VStrut(20)
-	
+	// Simulation
 	contents += new BoxPanel(Orientation.Vertical) {
-		border = new TitledBorder("Object")
+		border = new CompoundBorder() {
+			outsideBorder = new TitledBorder("Simulation")
+			insideBorder = new EmptyBorder(8, 8, 8, 8)
+		}
+		
+		
+		contents += new FlowPanel() {
+			contents += loadButton
+			contents += clearButton
+		}
+		
+		contents += new FlowPanel() {
+			contents += pauseButton
+			contents += resetButton
+		}
+		
+		contents += new FlowPanel { contents += new Label("Simulated time") }
+		contents += new GridPanel(4, 2) {
+			hGap = 10
+			contents += yearsLabel
+			contents += new LLabel("years")
+			contents += daysLabel
+			contents += new LLabel("days")
+			contents += hoursLabel
+			contents += new LLabel("hours")
+			contents += minutesLabel
+			contents += new LLabel("minutes")
+		}
+		
+		contents += Swing.VStrut(20)
+		
+		contents += new GridPanel(2, 2) {
+			contents += new Label("Speed")
+			contents += speedSlider
+			contents += new Label("Accuracy")
+			contents += accuracySlider
+		}
+	}
+	contents += Swing.VStrut(20)
+	
+	
+	// Apperance
+	contents += new BoxPanel(Orientation.Vertical) {
+		border = new CompoundBorder() {
+			outsideBorder = new TitledBorder("Appearance")
+			insideBorder = new EmptyBorder(8, 8, 8, 8)
+		}
+		
+		contents += new FlowPanel { contents += cameraCheckbox }
+		
+		contents += new FlowPanel { contents += new Label("Camera center") }
+		contents += centerList
+		contents += Swing.VStrut(10)
+		
+		contents += new GridPanel(2, 2) {
+			contents += new Label("Object size")
+			contents += sizeSlider
+			contents += new Label("Object scale")
+			contents += scaleSlider
+		}
+	}
+	contents += Swing.VStrut(20)
+	
+	
+	// Object
+	contents += new BoxPanel(Orientation.Vertical) {
+		border = new CompoundBorder() {
+			outsideBorder = new TitledBorder("Object")
+			insideBorder = new EmptyBorder(8, 8, 8, 8)
+		}
 		
 		contents += objectList
 		contents += Swing.VStrut(20)
@@ -108,10 +141,17 @@ class SidePanel(val simPanel: SimulationPanel)
 	contents += Swing.VStrut(10000)
 	
 	
+	
+	
+	
 	listenTo(
 		loadButton, clearButton,
 		pauseButton, resetButton,
-		speedSlider, accuracySlider, cameraCheckbox, centerList.selection,
+		speedSlider, accuracySlider,
+		
+		cameraCheckbox, centerList.selection,
+		sizeSlider, scaleSlider,
+		
 		objectList.selection)
 		
 	
@@ -141,6 +181,7 @@ class SidePanel(val simPanel: SimulationPanel)
 			val v01 = accuracySlider.value.toDouble / 1000
 			val v = v01 * v01 * v01
 			GUI.ticksPerSec = v * 10000
+			
 		
 		case ButtonClicked(`cameraCheckbox`) =>
 			simPanel.freeCamera = cameraCheckbox.selected
@@ -149,6 +190,13 @@ class SidePanel(val simPanel: SimulationPanel)
 		case SelectionChanged(`centerList`) =>
 			simPanel.centerObject = centerList.selection.index - 1
 		
+		case ValueChanged(`sizeSlider`) =>
+			simPanel.objectSize = sizeSlider.value
+		
+		case ValueChanged(`scaleSlider`) =>
+			simPanel.objectScale = 1.0 - scaleSlider.value / 100.0
+			
+			
 		case SelectionChanged(`objectList`) =>
 			GUI.selectedObject = objectList.selection.index
 			update()
