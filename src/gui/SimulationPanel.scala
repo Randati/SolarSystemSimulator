@@ -88,11 +88,13 @@ class SimulationPanel extends Panel {
 		
 		// TODO: Add velocity and acceleration vectors
 		
-		def screenCoordinates(pos: Vec, radius: Double): Vec = Vec(
-			(pos.x - center.x) / posZoom + offsetX - radius,
-			(pos.y - center.y) / posZoom + offsetY - radius,
-			pos.z
-		)
+		def screenCoordinates(pos: Vec, offset: Double = 0): Vec = {
+			val p = rotationMatrix * pos
+			Vec(
+				(p.x - center.x) / posZoom + offsetX - offset,
+				(p.y - center.y) / posZoom + offsetY - offset,
+				p.z)
+		}
 		
 		val selectedObject = if (GUI.selectedObject < objs.length) objs(GUI.selectedObject) else null
 		var selectedDrawable: Option[Drawable] = None
@@ -104,7 +106,7 @@ class SimulationPanel extends Panel {
 				// TODO: Better radius handling
 				val color      = new Color(obj.color)
 				val drawRadius = math.max((math.log(obj.radius) - math.log(rMin)) * rZoom, 0.5)
-				val drawPos    = screenCoordinates(rotationMatrix * obj.position, drawRadius)
+				val drawPos    = screenCoordinates(obj.position, drawRadius)
 				
 				val drawable = Drawable(drawPos, drawRadius, color)
 				
@@ -116,7 +118,7 @@ class SimulationPanel extends Panel {
 			++
 			trails.getData.map { p =>
 				val r = 0.5
-				val pos = screenCoordinates(rotationMatrix * p._1, r)
+				val pos = screenCoordinates(p._1, r)
 				Drawable(pos, r, p._2)
 			})
 			.sortBy(_.pos.z)
@@ -126,6 +128,20 @@ class SimulationPanel extends Panel {
 		for (d <- drawObjects) {
 			g.setColor(d.color)
 			g.fillOval(d.pos.x.toInt, d.pos.y.toInt, (d.radius * 2).toInt, (d.radius * 2).toInt)
+		}
+		
+		
+		// Draw velocity and acceleration vectors
+		for (obj <- objs) {
+			val origin = screenCoordinates(obj.position)
+			val velVec = screenCoordinates(obj.position + obj.velocity * 10e5)
+			val accVec = screenCoordinates(obj.position + obj.acceleration * 10e11)
+			
+			g.setColor(new Color(0x00FF00))
+			g.drawLine(origin.x.toInt, origin.y.toInt, velVec.x.toInt, velVec.y.toInt)
+			
+			g.setColor(new Color(0x00FFFF))
+			g.drawLine(origin.x.toInt, origin.y.toInt, accVec.x.toInt, accVec.y.toInt)
 		}
 		
 		

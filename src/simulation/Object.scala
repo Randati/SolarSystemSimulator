@@ -9,7 +9,8 @@ case class Object(
 	val radius: Double,
 	val position: Vec,
 	val velocity: Vec,
-	val color: Int = 0xFFFFFF) {
+	val color: Int = 0xFFFFFF,
+	val acceleration: Vec = Vec()) {
 	
 	def +(o: Object) = copy(position = position + o.position, velocity = velocity + o.velocity)
 	def *(x: Double) = copy(position = position * x,          velocity = velocity * x)

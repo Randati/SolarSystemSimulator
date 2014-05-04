@@ -14,10 +14,21 @@ class Simulation(objects: Vector[Object]) {
 	def getObjects() = state.objects
 	
 	def simulate(dt: Double): Boolean = {
+		val oldState = state
 		val (newT, newState) = RK4Integrator.nextState(time, state, dt)
-		time = newT
-		state = newState
 		
+		// Ugly hack to get already calculated and applied acceleration
+		val objects = Vector.tabulate(oldState.objects.length) { i =>
+			val old     = oldState.objects(i).velocity
+			val current = newState.objects(i).velocity
+			val acceleration = (current - old) / dt
+			newState.objects(i).copy(acceleration = acceleration)
+		}
+		
+		time = newT
+		state = SystemState(objects)
+		
+		// Check for collisions
 		for (o1 <- state.objects; o2 <- state.objects if o1 != o2) {
 			if (ballBallCollision(o1.position, o1.radius, o2.position, o2.radius))
 				return true
