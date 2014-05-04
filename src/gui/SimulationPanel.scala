@@ -94,7 +94,6 @@ class SimulationPanel extends Panel {
 				Vec()
 		
 		
-		
 		def screenCoordinates(pos: Vec, offset: Double = 0): Vec = {
 			val p = rotationMatrix * pos
 			Vec(
@@ -102,6 +101,28 @@ class SimulationPanel extends Panel {
 				(p.y - center.y) / posZoom + offsetY - offset,
 				p.z)
 		}
+		
+		// Draw grid
+		val gridWidth = 1e12
+		val gridPos   = -1e11
+		val gridCells = 20
+		for (row <- 0 to gridCells) {
+			val v11 = row.toDouble / gridCells * 2 - 1
+			val p1 = screenCoordinates(Vec(-gridWidth, gridWidth * v11, gridPos))
+			val p2 = screenCoordinates(Vec( gridWidth, gridWidth * v11, gridPos))
+			
+			g.setColor(new Color(255, 255, 255, 40))
+			g.drawLine(p1.x.toInt, p1.y.toInt, p2.x.toInt, p2.y.toInt)
+		}
+		for (row <- 0 to gridCells) {
+			val v11 = row.toDouble / gridCells * 2 - 1
+			val p1 = screenCoordinates(Vec(gridWidth * v11, -gridWidth, gridPos))
+			val p2 = screenCoordinates(Vec(gridWidth * v11,  gridWidth, gridPos))
+			
+			g.setColor(new Color(255, 255, 255, 40))
+			g.drawLine(p1.x.toInt, p1.y.toInt, p2.x.toInt, p2.y.toInt)
+		}
+
 		
 		val selectedObject = if (GUI.selectedObject < objs.length) objs(GUI.selectedObject) else null
 		var selectedDrawable: Option[Drawable] = None
