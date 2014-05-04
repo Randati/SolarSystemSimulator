@@ -29,6 +29,7 @@ class SidePanel(val simPanel: SimulationPanel)
 	private val speedSlider    = new Slider { min = 0; max = 1000 }
 	private val accuracySlider = new Slider { min = 1; max = 1000 }
 	private val cameraCheckbox = new CheckBox("Free camera")
+	private val centerList = new ComboBox(Array[String]("None"))
 	
 	private val objectList = new ComboBox(Array[String]())
 	
@@ -73,6 +74,9 @@ class SidePanel(val simPanel: SimulationPanel)
 
 	contents += new FlowPanel { contents += cameraCheckbox }
 	
+	contents += new FlowPanel { contents += new Label("Camera center") }
+	contents += centerList
+	
 	
 	contents += Swing.VStrut(20)
 	
@@ -107,7 +111,7 @@ class SidePanel(val simPanel: SimulationPanel)
 	listenTo(
 		loadButton, clearButton,
 		pauseButton, resetButton,
-		speedSlider, accuracySlider, cameraCheckbox,
+		speedSlider, accuracySlider, cameraCheckbox, centerList.selection,
 		objectList.selection)
 		
 	
@@ -141,6 +145,9 @@ class SidePanel(val simPanel: SimulationPanel)
 		case ButtonClicked(`cameraCheckbox`) =>
 			simPanel.freeCamera = cameraCheckbox.selected
 			simPanel.updateCamera()
+		
+		case SelectionChanged(`centerList`) =>
+			simPanel.centerObject = centerList.selection.index - 1
 		
 		case SelectionChanged(`objectList`) =>
 			GUI.selectedObject = objectList.selection.index
@@ -177,9 +184,15 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	def updateObjectList() = {
 		val objects = GUI.simulation.getObjects
-		val combobox = objectList.peer.asInstanceOf[JComboBox[String]]
-		val listModel = ComboBox.newConstantModel(objects.map(_.name)).asInstanceOf[ComboBoxModel[String]]
-		combobox.setModel(listModel)
+		
+		val centerCombobox  = centerList.peer.asInstanceOf[JComboBox[String]]
+		val objectsCombobox = objectList.peer.asInstanceOf[JComboBox[String]]
+		
+		val centerModel  = ComboBox.newConstantModel("None" +: objects.map(_.name)).asInstanceOf[ComboBoxModel[String]]
+		val objectsModel = ComboBox.newConstantModel(objects.map(_.name)).asInstanceOf[ComboBoxModel[String]]
+		
+		centerCombobox.setModel(centerModel)
+		objectsCombobox.setModel(objectsModel)
 	}
 	
 }

@@ -13,6 +13,7 @@ import util.RingBuffer
 class SimulationPanel extends Panel {
 	val trails = new RingBuffer[(Vec, java.awt.Color)](300 * 11)
 	var freeCamera = false
+	var centerObject = -1
 	
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
@@ -83,10 +84,14 @@ class SimulationPanel extends Panel {
 		val rMin = if(objs.nonEmpty) objs.minBy(_.radius).radius else 0
 		val rZoom = 3.5 / zoom
 		val posZoom = 1e9 * zoom
-		val center = Vec()
+		
+		val center =
+			if (centerObject >= 0 && centerObject < objs.length)
+				rotationMatrix * objs(centerObject).position
+			else
+				Vec()
 		
 		
-		// TODO: Add velocity and acceleration vectors
 		
 		def screenCoordinates(pos: Vec, offset: Double = 0): Vec = {
 			val p = rotationMatrix * pos
