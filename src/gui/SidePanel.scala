@@ -192,7 +192,6 @@ class SidePanel(val simPanel: SimulationPanel)
 			val v01 = accuracySlider.value.toDouble / 1000
 			val v = v01 * v01 * v01
 			GUI.ticksPerSec = v * 10000
-			println(GUI.ticksPerSec)
 			
 		
 		case ButtonClicked(`cameraCheckbox`) =>
