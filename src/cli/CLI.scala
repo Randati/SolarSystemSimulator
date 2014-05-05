@@ -38,14 +38,20 @@ object CLI {
 					objects +:= Object(name, mass, radius * 1000, Vec(x, y, z) * 1000, Vec(vx, vy, vz) * 1000)
 					
 				case Command.Simulate(duration, stepDuration, output) =>
-					// TODO handle output
+					val out = new java.io.PrintWriter(
+						if (output.isDefined)
+							new java.io.FileOutputStream(new java.io.File(output.get))
+						else
+							System.out
+					, true)
+					
 					simulation = new Simulation(objects)
 					
-					println(stepDuration)
-					println
+					out.println(stepDuration)
+					out.println
 					
 					for (o <- simulation.getObjects)
-						println(o.name + " " + o.mass + " " + (o.radius / 1000))
+						out.println(o.name + " " + o.mass + " " + (o.radius / 1000))
 					
 					var collision = false
 					while (simulation.simulatedTime <= duration && !collision) {
@@ -53,13 +59,16 @@ object CLI {
 						if (collided)
 							collision = true
 						
-						println
+						out.println
 						for (o <- simulation.getObjects) {
 							val p = o.position / 1000
 							val v = o.velocity / 1000
-							println(s"${p.x} ${p.y} ${p.z} ${v.z} ${v.z} ${v.z}")
+							out.println(s"${p.x} ${p.y} ${p.z} ${v.z} ${v.z} ${v.z}")
 						}
 					}
+					
+					if (output.isDefined)
+						out.close()
 					
 					
 				case Command.Status() =>
