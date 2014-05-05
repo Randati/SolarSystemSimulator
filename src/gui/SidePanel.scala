@@ -32,8 +32,10 @@ class SidePanel(val simPanel: SimulationPanel)
 	
 	private val cameraCheckbox = new CheckBox("Free camera rotation")
 	private val centerList     = new ComboBox(Array[String]("None"))
-	private val sizeSlider     = new Slider { min = 1; max = 100 }
-	private val scaleSlider    = new Slider { min = 1; max = 100 }
+	private val sizeSlider     = new Slider { min = 1; max = 1000 }
+	private val scaleSlider    = new Slider { min = 1; max = 1000 }
+	private val trailSlider    = new Slider { min = 1; max = 1000 }
+	private val vectorSlider   = new Slider { min = 1; max = 1000 }
 	
 	private val objectList = new ComboBox(Array[String]())
 	private val massField   = new TField
@@ -99,11 +101,15 @@ class SidePanel(val simPanel: SimulationPanel)
 		contents += centerList
 		contents += Swing.VStrut(10)
 		
-		contents += new GridPanel(2, 2) {
+		contents += new GridPanel(4, 2) {
 			contents += new Label("Object size")
 			contents += sizeSlider
 			contents += new Label("Object scale")
 			contents += scaleSlider
+			contents += new Label("Trail length")
+			contents += trailSlider
+			contents += new Label("Vector length")
+			contents += vectorSlider
 		}
 	}
 	contents += Swing.VStrut(20)
@@ -150,7 +156,7 @@ class SidePanel(val simPanel: SimulationPanel)
 		speedSlider, accuracySlider,
 		
 		cameraCheckbox, centerList.selection,
-		sizeSlider, scaleSlider,
+		sizeSlider, scaleSlider, trailSlider, vectorSlider,
 		
 		objectList.selection)
 		
@@ -197,10 +203,16 @@ class SidePanel(val simPanel: SimulationPanel)
 			simPanel.centerObject = centerList.selection.index - 1
 		
 		case ValueChanged(`sizeSlider`) =>
-			simPanel.objectSize = sizeSlider.value
+			simPanel.objectSize = sizeSlider.value / 1000.0 * 100
 		
 		case ValueChanged(`scaleSlider`) =>
-			simPanel.objectScale = 1.0 - scaleSlider.value / 100.0
+			simPanel.objectScale = 1.0 - scaleSlider.value / 1000.0
+		
+		case ValueChanged(`trailSlider`) =>
+			simPanel.trailLength((trailSlider.value / 1000.0 * 2000).toInt)
+			
+		case ValueChanged(`vectorSlider`) =>
+			simPanel.vectorLength = vectorSlider.value / 1000.0 * 10
 			
 			
 		case SelectionChanged(`objectList`) =>
@@ -212,6 +224,8 @@ class SidePanel(val simPanel: SimulationPanel)
 	accuracySlider.value = 300
 	sizeSlider.value = 1
 	scaleSlider.value = 1
+	trailSlider.value = 100
+	vectorSlider.value = 10
 	
 	
 	
@@ -258,6 +272,8 @@ class SidePanel(val simPanel: SimulationPanel)
 		centerList.selection.index = 0
 		if (objects.nonEmpty)
 			objectList.selection.index = 0
+		
+		trailSlider.value = trailSlider.value
 	}
 	
 	def setPauseButtonState() = {

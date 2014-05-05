@@ -91,6 +91,7 @@ object GUI extends SimpleSwingApplication {
 					
 					tickTime = (System.nanoTime() - startTime) / 1e9
 				}
+				
 				Thread.sleep((sleepThisTick * 1000).toLong)
 			}
 		}

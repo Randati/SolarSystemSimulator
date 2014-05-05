@@ -16,6 +16,7 @@ class SimulationPanel extends Panel {
 	var centerObject = -1
 	var objectSize = 1.0
 	var objectScale = 1.0
+	var vectorLength = 1.0
 	
 	private var offsetX: Double = -size.width / 2
 	private var offsetY: Double = -size.height / 2
@@ -25,6 +26,12 @@ class SimulationPanel extends Panel {
 	private var angleX = 0.0
 	private var angleY = Pi / 2
 	private var rotationMatrix = Matrix.rotationX(angleY) * Matrix.rotationZ(angleX)
+	
+	def trailLength(length: Int) = {
+		val numObjs = GUI.simulation.getObjects.length
+		if (numObjs > 0)
+			trails.clearAndResize(numObjs * length)
+	}
 	
 	ignoreRepaint = true
 	
@@ -163,8 +170,8 @@ class SimulationPanel extends Panel {
 		// Draw velocity and acceleration vectors
 		for (obj <- objs) {
 			val origin = screenCoordinates(obj.position)
-			val velVec = screenCoordinates(obj.position + obj.velocity * 10e5)
-			val accVec = screenCoordinates(obj.position + obj.acceleration * 10e11)
+			val velVec = screenCoordinates(obj.position + obj.velocity * 10e5 * vectorLength)
+			val accVec = screenCoordinates(obj.position + obj.acceleration * 10e11 * vectorLength)
 			
 			g.setColor(new Color(0x00FF00))
 			g.drawLine(origin.x.toInt, origin.y.toInt, velVec.x.toInt, velVec.y.toInt)

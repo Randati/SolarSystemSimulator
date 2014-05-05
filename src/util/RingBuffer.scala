@@ -2,7 +2,7 @@ package util
 import scala.reflect.ClassTag
 
 class RingBuffer[T : ClassTag](size: Int) {
-	private val data = Array.ofDim[T](size)
+	private var data = Array.ofDim[T](size)
 	private var pointer = 0
 	private var full = false
 	
@@ -26,5 +26,11 @@ class RingBuffer[T : ClassTag](size: Int) {
 	def clear() = {
 		pointer = 0
 		full = false
+	}
+	
+	def clearAndResize(size: Int) = {
+		require(size > 0)
+		data = Array.ofDim[T](size)
+		clear()
 	}
 }
