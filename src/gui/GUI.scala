@@ -11,7 +11,7 @@ import util.SolarSystemReader
 
 
 object GUI extends SimpleSwingApplication {
-	var simulationPaused = false
+	var simulationPaused = true
 	var simSecPerSec = 60 * 60 * 24 * 0.5
 	var ticksPerSec = 30.0
 	var selectedObject = 0
@@ -25,6 +25,7 @@ object GUI extends SimpleSwingApplication {
 	
 	
 	def simulation = currentSimulation
+	def hasCrashed = collision
 	
 	def loadFile(filename: String) = {
 		SolarSystemReader.loadFile(filename) match {
@@ -46,6 +47,8 @@ object GUI extends SimpleSwingApplication {
 		currentSimulation = new Simulation(loadedObjects)
 		simulationPanel.trails.clear()
 		sidePanel.updateObjectList()
+		collision = false
+		sidePanel.setPauseButtonState()
 	}
 	
 	
@@ -60,8 +63,10 @@ object GUI extends SimpleSwingApplication {
 			layout(simulationPanel) = BorderPanel.Position.Center
 			layout(sidePanel) = BorderPanel.Position.East
 		}
+		
+		sidePanel.update()
+		sidePanel.setPauseButtonState()
 	}
-	
 	
 	// Start simulation thread
 	new Thread(new Runnable {
@@ -99,6 +104,13 @@ object GUI extends SimpleSwingApplication {
 			
 			if (!simulationPaused)
 				sidePanel.update()
+			
+			if (collision) {
+				simulationPaused = true
+				sidePanel.setPauseButtonState()
+				Dialog.showMessage(simulationPanel, "Crash!")
+				collision = false
+			}
 		}
 	}).start()
 	

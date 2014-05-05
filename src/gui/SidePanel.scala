@@ -163,14 +163,19 @@ class SidePanel(val simPanel: SimulationPanel)
 			}
 		
 		case ButtonClicked(`clearButton`) =>
+			GUI.simulationPaused = true
 			GUI.clearObjects()
+			GUI.resetSimulation()
+			update()
+			setPauseButtonState()
 				
 		case ButtonClicked(`pauseButton`) =>
 			GUI.simulationPaused = !GUI.simulationPaused
-			pauseButton.text = if (GUI.simulationPaused) "Run" else "Pause"
+			setPauseButtonState()
 		
 		case ButtonClicked(`resetButton`) =>
 			GUI.resetSimulation()
+			update()
 			
 		case ValueChanged(`speedSlider`) =>
 			val v01 = speedSlider.value.toDouble / 1000
@@ -181,6 +186,7 @@ class SidePanel(val simPanel: SimulationPanel)
 			val v01 = accuracySlider.value.toDouble / 1000
 			val v = v01 * v01 * v01
 			GUI.ticksPerSec = v * 10000
+			println(GUI.ticksPerSec)
 			
 		
 		case ButtonClicked(`cameraCheckbox`) =>
@@ -201,6 +207,13 @@ class SidePanel(val simPanel: SimulationPanel)
 			GUI.selectedObject = objectList.selection.index
 			update()
 	}
+	
+	speedSlider.value = 400
+	accuracySlider.value = 300
+	sizeSlider.value = 1
+	scaleSlider.value = 1
+	
+	
 	
 	
 	def update() = {
@@ -241,6 +254,15 @@ class SidePanel(val simPanel: SimulationPanel)
 		
 		centerCombobox.setModel(centerModel)
 		objectsCombobox.setModel(objectsModel)
+		
+		centerList.selection.index = 0
+		if (objects.nonEmpty)
+			objectList.selection.index = 0
+	}
+	
+	def setPauseButtonState() = {
+		pauseButton.text = if (GUI.simulationPaused) "Run" else "Pause"
+		pauseButton.enabled = !GUI.hasCrashed
 	}
 	
 }

@@ -132,7 +132,7 @@ class UnitTests {
 		assertEquals(Command.Invalid(Command.TooFewArguments()), CLI.parseInput(""))
 		assertEquals(Command.Invalid(Command.TooFewArguments()), CLI.parseInput("object Kivi 1.0"))
 		assertEquals(Command.Invalid(Command.TooManyArguments()), CLI.parseInput("load foo bar"))
-		assertEquals(Command.Invalid(Command.InvalidNumber()), CLI.parseInput("simulate foo"))
+		assertEquals(Command.Invalid(Command.InvalidNumber()), CLI.parseInput("simulate foo bar"))
 		assertEquals(Command.Invalid(Command.UnknownCommand("asd")), CLI.parseInput("asd"))
 	}
 
