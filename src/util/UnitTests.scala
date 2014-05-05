@@ -3,6 +3,7 @@ package util
 import org.junit.Test
 import org.junit.Assert._
 import simulation.Object
+import cli._
 
 class UnitTests {
 
@@ -116,6 +117,23 @@ class UnitTests {
 		
 		ring.push(4)
 		assertEquals(Array(4, 2, 3).deep, ring.getData.deep)
+	}
+	
+	@Test def testCommandParsing() {
+		assertEquals(Command.Load("earth.ss"), CLI.parseInput("load earth.ss"))
+		assertEquals(Command.Object("Kivi", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0), CLI.parseInput("object Kivi 1 2 3 4 5 6 7 8"))
+		assertEquals(Command.Simulate(10.0, 5.0, None), CLI.parseInput("simulate 10 5"))
+		assertEquals(Command.Simulate(10.0, 5.0, Some("out.txt")), CLI.parseInput("simulate 10 5 out.txt"))
+		assertEquals(Command.Status(), CLI.parseInput("status"))
+		assertEquals(Command.Clear(), CLI.parseInput("clear"))
+		assertEquals(Command.Help(), CLI.parseInput("help"))
+		assertEquals(Command.Exit(), CLI.parseInput("exit"))
+		
+		assertEquals(Command.Invalid(Command.TooFewArguments()), CLI.parseInput(""))
+		assertEquals(Command.Invalid(Command.TooFewArguments()), CLI.parseInput("object Kivi 1.0"))
+		assertEquals(Command.Invalid(Command.TooManyArguments()), CLI.parseInput("load foo bar"))
+		assertEquals(Command.Invalid(Command.InvalidNumber()), CLI.parseInput("simulate foo"))
+		assertEquals(Command.Invalid(Command.UnknownCommand("asd")), CLI.parseInput("asd"))
 	}
 
 }

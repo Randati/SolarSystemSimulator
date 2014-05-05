@@ -1,6 +1,5 @@
 package simulation
 
-import scala.collection.mutable.ListBuffer
 import util.Vec
 
 // TODO: Test lagrangian points
